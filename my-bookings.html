@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Bookings - EduEvents</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <h1 class="page-title">My Bookings</h1>
+    <p class="page-subtitle">All the events you have registered for.</p>
+
+    <!-- Bookings are listed here by the JavaScript. -->
+    <div id="bookings-list"></div>
+
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    // Read all bookings from localStorage.
+    const bookings = getBookings();
+    const list = document.getElementById("bookings-list");
+
+    if (bookings.length === 0) {
+      // No bookings yet - show a friendly empty state.
+      list.innerHTML =
+        '<div class="empty">' +
+          '<div class="icon">🎟️</div>' +
+          '<h2>No bookings yet</h2>' +
+          '<p>You have not registered for any events.</p>' +
+          '<a href="events.html" class="btn">Browse Events</a>' +
+        '</div>';
+    } else {
+      // Show the most recent booking first.
+      bookings.reverse();
+
+      // Build one card per booking.
+      bookings.forEach(function (b) {
+        list.innerHTML +=
+          '<div class="booking-card">' +
+            '<div>' +
+              '<div class="b-title">' + b.eventTitle + '</div>' +
+              '<div class="b-meta">' + b.eventDate + ' &middot; ' + b.eventVenue + '</div>' +
+              '<div class="b-meta">' + b.name + ' &middot; ' + b.ticket + ' ticket</div>' +
+              '<div class="b-meta">Booking ID: <span class="booking-id">' + b.id + '</span></div>' +
+            '</div>' +
+            '<div class="price ' + (b.price === 0 ? 'free' : '') + '">' +
+              (b.price === 0 ? 'FREE' : 'Rs. ' + b.price) +
+            '</div>' +
+          '</div>';
+      });
+
+      // A button to clear all bookings (handy while testing the demo).
+      list.innerHTML +=
+        '<div style="text-align:center; margin-top:24px;">' +
+          '<button class="btn btn-outline" onclick="clearAll()">Clear All Bookings</button>' +
+        '</div>';
+    }
+
+    // Delete all saved bookings.
+    function clearAll() {
+      if (confirm("Remove all saved bookings?")) {
+        localStorage.removeItem("edu_events_bookings");
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

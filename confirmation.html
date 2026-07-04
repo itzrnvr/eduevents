@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registration Confirmed - EduEvents</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <div class="success-icon">✅</div>
+    <h1 class="page-title">Registration Confirmed!</h1>
+    <p class="page-subtitle">Your seat has been reserved. Save your booking ID.</p>
+
+    <!-- The booking details get filled in by the JavaScript below. -->
+    <div class="success-box" id="confirm-box"></div>
+
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    // Read the booking id we saved before jumping to this page.
+    const lastId = sessionStorage.getItem("last_booking_id");
+
+    // Find that booking in our stored list.
+    const bookings = getBookings();
+    const booking = bookings.find(function (b) { return b.id === lastId; });
+
+    const box = document.getElementById("confirm-box");
+
+    if (booking === undefined) {
+      box.innerHTML =
+        '<p>No recent booking found.</p>' +
+        '<a href="events.html" class="btn">Browse Events</a>';
+    } else {
+      box.innerHTML =
+        '<div class="detail-row"><span class="label">Booking ID</span>' +
+          '<span class="value booking-id">' + booking.id + '</span></div>' +
+        '<div class="detail-row"><span class="label">Event</span>' +
+          '<span class="value">' + booking.eventTitle + '</span></div>' +
+        '<div class="detail-row"><span class="label">Date</span>' +
+          '<span class="value">' + booking.eventDate + '</span></div>' +
+        '<div class="detail-row"><span class="label">Venue</span>' +
+          '<span class="value">' + booking.eventVenue + '</span></div>' +
+        '<div class="detail-row"><span class="label">Name</span>' +
+          '<span class="value">' + booking.name + '</span></div>' +
+        '<div class="detail-row"><span class="label">Ticket</span>' +
+          '<span class="value">' + booking.ticket + '</span></div>' +
+        '<div class="detail-row"><span class="label">Amount</span>' +
+          '<span class="value">' +
+            (booking.price === 0 ? 'FREE' : 'Rs. ' + booking.price) +
+          '</span></div>' +
+        '<div style="margin-top:24px;">' +
+          '<a href="my-bookings.html" class="btn btn-accent">View My Bookings</a>' +
+          '<a href="events.html" class="btn btn-outline" style="margin-left:8px;">Register Another</a>' +
+        '</div>';
+    }
+  </script>
+</body>
+</html>

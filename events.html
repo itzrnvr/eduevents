@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Events - EduEvents</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <h1 class="page-title">All Events</h1>
+    <p class="page-subtitle">Filter by category and click an event to register.</p>
+
+    <!-- Filter buttons. The onclick calls a function defined in the script below. -->
+    <div class="filters">
+      <button class="filter-btn active" onclick="filterEvents('All')">All</button>
+      <button class="filter-btn" onclick="filterEvents('Technical')">Technical</button>
+      <button class="filter-btn" onclick="filterEvents('Workshop')">Workshop</button>
+      <button class="filter-btn" onclick="filterEvents('Cultural')">Cultural</button>
+      <button class="filter-btn" onclick="filterEvents('Sports')">Sports</button>
+    </div>
+
+    <!-- This empty container is filled by the JavaScript. -->
+    <div class="card-grid" id="events-grid"></div>
+
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    // Show events on the page. If a category is given, only show
+    // events that match that category.
+    function showEvents(category) {
+      const grid = document.getElementById("events-grid");
+      grid.innerHTML = "";   // clear whatever is currently shown
+
+      // Filter the events list. If category is "All", keep everything.
+      const list = EVENTS.filter(function (e) {
+        return (category === "All" || e.category === category);
+      });
+
+      // Build one card per event.
+      list.forEach(function (e) {
+        grid.innerHTML +=
+          '<div class="card">' +
+            '<div class="card-banner">' + e.image + '</div>' +
+            '<div class="card-body">' +
+              '<span class="tag">' + e.category + '</span>' +
+              '<h3>' + e.title + '</h3>' +
+              '<div class="meta">' + e.date + ' &middot; ' + e.time + '</div>' +
+              '<div class="meta">' + e.venue + '</div>' +
+              '<p class="desc">' + e.description + '</p>' +
+              '<div class="card-footer">' +
+                '<span class="price ' + (e.price === 0 ? 'free' : '') + '">' +
+                  (e.price === 0 ? 'FREE' : 'Rs. ' + e.price) +
+                '</span>' +
+                '<a href="event.html?id=' + e.id + '" class="btn">View Details</a>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+      });
+    }
+
+    // Called when a filter button is clicked.
+    // It updates the active button look, then re-renders the list.
+    function filterEvents(category) {
+      const buttons = document.querySelectorAll(".filter-btn");
+      buttons.forEach(function (b) {
+        b.classList.remove("active");
+        if (b.innerText === category) b.classList.add("active");
+      });
+      showEvents(category);
+    }
+
+    // On first load, show all events.
+    showEvents("All");
+  </script>
+</body>
+</html>

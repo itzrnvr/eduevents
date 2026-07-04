@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Details - EduEvents</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- The event details get filled in by the JavaScript. -->
+    <div id="event-detail"></div>
+
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    // Read the "id" from the URL (e.g. event.html?id=3 -> id = "3").
+    const id = getParam("id");
+
+    // Find the matching event in our EVENTS list.
+    const event = getEventById(id);
+
+    const box = document.getElementById("event-detail");
+
+    if (event === null) {
+      // No matching event found - show a friendly message.
+      box.innerHTML =
+        '<div class="empty">' +
+          '<div class="icon">😕</div>' +
+          '<h2>Event not found</h2>' +
+          '<p>Please go back to the events page.</p>' +
+          '<a href="events.html" class="btn">Back to Events</a>' +
+        '</div>';
+    } else {
+      // Show the full details of this event.
+      box.innerHTML =
+        '<div class="card">' +
+          '<div class="card-banner">' + event.image + '</div>' +
+          '<div class="card-body">' +
+            '<span class="tag">' + event.category + '</span>' +
+            '<h3>' + event.title + '</h3>' +
+            '<p class="desc">' + event.description + '</p>' +
+            '<div class="detail-row"><span class="label">Date</span><span class="value">' + event.date + '</span></div>' +
+            '<div class="detail-row"><span class="label">Time</span><span class="value">' + event.time + '</span></div>' +
+            '<div class="detail-row"><span class="label">Venue</span><span class="value">' + event.venue + '</span></div>' +
+            '<div class="detail-row"><span class="label">Seats</span><span class="value">' + event.seats + '</span></div>' +
+            '<div class="detail-row"><span class="label">Price</span><span class="value">' +
+              (event.price === 0 ? 'FREE' : 'Rs. ' + event.price) +
+            '</span></div>' +
+            '<div style="text-align:center; margin-top:24px;">' +
+              '<a href="register.html?id=' + event.id + '" class="btn btn-accent">Register Now</a>' +
+              '<a href="events.html" class="btn btn-outline" style="margin-left:8px;">Back</a>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }
+  </script>
+</body>
+</html>

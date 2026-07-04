@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - EduEvents</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <h1 class="page-title">Event Registration</h1>
+    <p class="page-subtitle" id="event-name">Loading event...</p>
+
+    <!-- The registration form. Each field has its own error message. -->
+    <form class="form-card" id="reg-form" onsubmit="return validateAndSubmit(event)">
+
+      <!-- Full name -->
+      <div class="form-group" id="group-name">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" placeholder="Enter your full name">
+        <div class="form-error">Please enter your name.</div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group" id="group-email">
+        <label for="email">Email</label>
+        <input type="text" id="email" placeholder="you@example.com">
+        <div class="form-error">Please enter a valid email address.</div>
+      </div>
+
+      <!-- Phone -->
+      <div class="form-group" id="group-phone">
+        <label for="phone">Phone Number</label>
+        <input type="text" id="phone" placeholder="10-digit mobile number">
+        <div class="form-error">Please enter a valid 10-digit phone number.</div>
+      </div>
+
+      <!-- Department -->
+      <div class="form-group" id="group-dept">
+        <label for="dept">Department</label>
+        <select id="dept">
+          <option value="">-- Select Department --</option>
+          <option value="CSE">Computer Science</option>
+          <option value="IT">Information Technology</option>
+          <option value="ECE">Electronics</option>
+          <option value="MECH">Mechanical</option>
+          <option value="CIVIL">Civil</option>
+          <option value="OTHER">Other</option>
+        </select>
+        <div class="form-error">Please select your department.</div>
+      </div>
+
+      <!-- Ticket type -->
+      <div class="form-group" id="group-ticket">
+        <label for="ticket">Ticket Type</label>
+        <select id="ticket">
+          <option value="">-- Select Ticket --</option>
+          <option value="General">General</option>
+          <option value="Student">Student (with ID)</option>
+          <option value="VIP">VIP</option>
+        </select>
+        <div class="form-error">Please select a ticket type.</div>
+      </div>
+
+      <div style="text-align:center; margin-top:8px;">
+        <button type="submit" class="btn btn-accent">Confirm Registration</button>
+        <a href="events.html" class="btn btn-outline" style="margin-left:8px;">Cancel</a>
+      </div>
+
+    </form>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    // Read the event id from the URL and show its title.
+    const event = getEventById(getParam("id"));
+
+    if (event === null) {
+      document.getElementById("event-name").innerText = "Event not found.";
+    } else {
+      document.getElementById("event-name").innerText =
+        "Registering for: " + event.title;
+    }
+
+    // Small helper: marks a field group as valid or invalid.
+    function setValid(groupId, ok) {
+      const g = document.getElementById(groupId);
+      if (ok) g.classList.remove("invalid");
+      else g.classList.add("invalid");
+    }
+
+    // This runs when the form is submitted.
+    // Returns true to let the form go through, false to stop it.
+    function validateAndSubmit(e) {
+      e.preventDefault();   // stop the default page reload
+
+      // Read the values the user typed.
+      const name  = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const dept  = document.getElementById("dept").value;
+      const ticket = document.getElementById("ticket").value;
+
+      // Check each field. A simple email check = contains "@" and ".".
+      const nameOk  = name.length >= 2;
+      const emailOk = email.includes("@") && email.includes(".");
+      // Phone must be exactly 10 digits.
+      const phoneOk = /^\d{10}$/.test(phone);
+      const deptOk  = dept !== "";
+      const ticketOk = ticket !== "";
+
+      setValid("group-name", nameOk);
+      setValid("group-email", emailOk);
+      setValid("group-phone", phoneOk);
+      setValid("group-dept", deptOk);
+      setValid("group-ticket", ticketOk);
+
+      // If any field is invalid, stop here.
+      if (!(nameOk && emailOk && phoneOk && deptOk && ticketOk)) {
+        return false;
+      }
+
+      // All good - save the booking.
+      const booking = addBooking({
+        eventId: event.id,
+        eventTitle: event.title,
+        eventDate: event.date,
+        eventVenue: event.venue,
+        price: event.price,
+        name: name,
+        email: email,
+        phone: phone,
+        dept: dept,
+        ticket: ticket
+      });
+
+      // Remember which booking to show on the confirmation page.
+      sessionStorage.setItem("last_booking_id", booking.id);
+
+      // Go to the confirmation page.
+      window.location.href = "confirmation.html";
+      return false;
+    }
+  </script>
+</body>
+</html>

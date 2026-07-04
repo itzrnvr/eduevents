@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduEvents - Campus Event Registration</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Hero banner: the big welcome at the top of the home page -->
+  <section class="hero">
+    <h1>Welcome to EduEvents</h1>
+    <p>Discover, register and manage campus events in one place. Browse upcoming events and reserve your seat in seconds.</p>
+    <a href="events.html" class="btn btn-accent">Browse Events</a>
+  </section>
+
+  <div class="container">
+
+    <h2 class="page-title">Featured Events</h2>
+    <p class="page-subtitle">A quick look at what's coming up on campus.</p>
+
+    <!-- This empty container is filled by the JavaScript below. -->
+    <div class="card-grid" id="featured"></div>
+
+  </div>
+
+  <!-- 1. Load the data file (events array + helper functions). -->
+  <script src="js/data.js"></script>
+  <!-- 2. Load the shared UI script (navbar + footer). -->
+  <script src="js/main.js"></script>
+  <!-- 3. This page's own script: show 3 featured events. -->
+  <script>
+    // Pick the first 3 events to show on the home page.
+    const featured = EVENTS.slice(0, 3);
+    const box = document.getElementById("featured");
+
+    // Build a card for each event and add it to the page.
+    featured.forEach(function (e) {
+      box.innerHTML +=
+        '<div class="card">' +
+          '<div class="card-banner">' + e.image + '</div>' +
+          '<div class="card-body">' +
+            '<span class="tag">' + e.category + '</span>' +
+            '<h3>' + e.title + '</h3>' +
+            '<div class="meta">' + e.date + ' &middot; ' + e.time + '</div>' +
+            '<div class="meta">' + e.venue + '</div>' +
+            '<p class="desc">' + e.description + '</p>' +
+            '<div class="card-footer">' +
+              '<span class="price ' + (e.price === 0 ? 'free' : '') + '">' +
+                (e.price === 0 ? 'FREE' : 'Rs. ' + e.price) +
+              '</span>' +
+              '<a href="event.html?id=' + e.id + '" class="btn">View</a>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    });
+  </script>
+</body>
+</html>
