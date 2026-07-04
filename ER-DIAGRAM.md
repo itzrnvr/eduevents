@@ -1,12 +1,94 @@
 # ER Diagram
 
-This is the data model used by EduEvents. It is faithful to the actual code
-in `js/data.js` (the EVENTS array) and the booking object built in
-`register.html` (the `addBooking({...})` call).
+Two views are given below.
+
+1. **Conceptual (normalized) model** — the 5-entity design a real database
+   version of this project would use. This is the diagram to show in the
+   viva.
+2. **Implementation model** — how the data is actually stored in this demo
+   (denormalized, in localStorage). Included for honesty.
+
+---
+
+## 1. Conceptual (normalized) ER diagram
 
 ```mermaid
 erDiagram
-    EVENT ||--o{ BOOKING : "registers students for"
+    CATEGORY ||--o{ EVENT : "classifies"
+    TICKET_TYPE ||--o{ BOOKING : "priced as"
+    STUDENT ||--o{ BOOKING : "makes"
+    EVENT ||--o{ BOOKING : "appears on"
+
+    CATEGORY {
+        int id PK
+        string name
+    }
+    TICKET_TYPE {
+        int id PK
+        string name
+        float priceMultiplier
+    }
+    STUDENT {
+        int id PK
+        string name
+        string email
+        string phone
+        string dept
+    }
+    EVENT {
+        int id PK
+        int categoryId FK
+        string title
+        string description
+        string image
+        string date
+        string time
+        string venue
+        int price
+        int seats
+    }
+    BOOKING {
+        string id PK
+        int studentId FK
+        int eventId FK
+        int ticketTypeId FK
+        datetime bookedAt
+    }
+```
+
+### Entities explained
+
+| Entity        | Meaning                                            | Where it lives in the code                     |
+|---------------|----------------------------------------------------|------------------------------------------------|
+| CATEGORY      | Event type: Technical / Workshop / Cultural / Sports | Filter buttons in `events.html`              |
+| TICKET_TYPE   | General / Student / VIP                            | `<select id="ticket">` in `register.html`      |
+| STUDENT       | The person registering                             | The form fields in `register.html`             |
+| EVENT         | A campus event                                     | The `EVENTS` array in `js/data.js`             |
+| BOOKING       | One student's registration for one event           | The object passed to `addBooking()`            |
+
+### Relationships and cardinalities
+
+| Relationship                  | Cardinality | Explanation                                     |
+|-------------------------------|-------------|-------------------------------------------------|
+| CATEGORY → EVENT              | 1 : N       | One category has many events                    |
+| TICKET_TYPE → BOOKING         | 1 : N       | One ticket type is used on many bookings        |
+| STUDENT → BOOKING             | 1 : N       | One student makes many bookings                 |
+| EVENT → BOOKING               | 1 : N       | One event has many bookings                     |
+
+BOOKING is an **associative entity** (a junction table) — it resolves the
+many-to-many relationship between STUDENT and EVENT. A student can register
+for many events, and an event can have many students.
+
+---
+
+## 2. Implementation model (what the code actually does)
+
+For the demo we did NOT build a real database. The data is stored flat in
+two places:
+
+```mermaid
+erDiagram
+    EVENT ||--o{ BOOKING : "registers for"
     EVENT {
         int id PK
         string title
@@ -35,62 +117,25 @@ erDiagram
     }
 ```
 
----
+### Why the difference? (likely viva question)
 
-## Reading this diagram
-
-- **EVENT** = one campus event (a row in the `EVENTS` array in `js/data.js`).
-- **BOOKING** = one student's registration for one event (saved in
-  `localStorage` under the key `edu_events_bookings`).
-- **EVENT ||--o{ BOOKING** = a "one-to-many" relationship: one event can
-  have many bookings, but each booking belongs to exactly one event.
-- **PK** = primary key (uniquely identifies a row).
-- **FK** = foreign key (links a booking to its event via `eventId`).
-
----
-
-## Cardinality (be ready to say this in the viva)
-
-> "One event can have zero or many bookings. One booking belongs to exactly
-> one event. So the relationship between EVENT and BOOKING is one-to-many
-> (1 : N)."
+> "The conceptual model is normalized into 5 entities. In the
+> implementation we deliberately denormalized: STUDENT fields live inside
+> the booking object, CATEGORY is stored as a plain string on the event,
+> and TICKET_TYPE is stored as a plain string on the booking. We also copy
+> the event title/date/venue/price into each booking. This is because the
+> demo uses the browser's localStorage, not a real database, so there are
+> no JOINs — duplicating the data makes the 'My Bookings' page simpler to
+> render. A production version would use the normalized 5-table schema
+> shown above with a SQL backend."
 
 ---
 
-## Why does BOOKING store eventTitle, eventDate, eventVenue, price
-## when those already exist in EVENT?
+## Reading the notation
 
-Good viva question. Honest answer:
-
-> "It is denormalized on purpose. In this demo the EVENTS list lives in a
-> JavaScript array, while bookings are saved in localStorage. To show a
-> booking on the 'My Bookings' page without having to look up the event
-> again, we copy the event details into the booking at the moment of
-> registration. The cost is duplicated data; the benefit is simpler code.
-> In a real system with a proper database we would store only the
-> `eventId` foreign key and JOIN the tables."
-
----
-
-## Notes on types
-
-- `int` = whole number (e.g. event id = 3, seats = 120, price = 100).
-- `string` = text (title, name, email, etc.).
-- `date` / `datetime` = a date or full timestamp (bookedAt records when the
-  booking was made, using ISO format).
-- `price` can be `0`, which means the event is free (shown as "FREE" on the
-  site).
-
----
-
-## How this maps to the actual code
-
-| Diagram field    | Where it comes from                              |
-|------------------|--------------------------------------------------|
-| EVENT.id         | `id` in the `EVENTS` array (`js/data.js`)        |
-| EVENT.*          | other keys in each event object                  |
-| BOOKING.eventId  | `eventId: event.id` in `register.html`           |
-| BOOKING.eventTitle / eventDate / eventVenue / price | copied from event in `register.html` |
-| BOOKING.id       | generated inside `addBooking()` in `data.js`     |
-| BOOKING.bookedAt | set inside `addBooking()` in `data.js`           |
-| BOOKING.name / email / phone / dept / ticket       | form inputs in `register.html`     |
+- `||--o{` means "one side has zero-or-many of the other" (a one-to-many
+  relationship).
+- `PK` = primary key (unique identifier for a row).
+- `FK` = foreign key (a column that references another table's primary key).
+- An **associative entity** (like BOOKING) is a table whose main job is to
+  connect two other tables in a many-to-many relationship.
